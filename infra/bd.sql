@@ -7,8 +7,8 @@ DROP TABLE IF EXISTS produto;
 create table usuarios(
   id serial primary key,
   nome varchar(100) not null,
-  senha varchar(100) not bull,
-  
+  senha varchar(100) not null,
+  email varchar(255) not null unique
 );
 
 CREATE TABLE produto (
