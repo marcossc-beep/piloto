@@ -10,3 +10,8 @@ const sql = new Pool({
 })
 
 export default sql
+
+import bcrypt from 'bcrypt'
+
+const hash = await bcrypt.hash('senha123', 10)              // no cadastro: gera o hash (10 = custo)
+const confere = await bcrypt.compare('senha123', hash)      // no login: true ou false
