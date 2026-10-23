@@ -9,10 +9,10 @@ POST {{url}}/add_produto
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
-    "valor": 89.90,
-    "quantidade": 10
+    "nome": "detergente premium",
+    "descricao": "detergente coco",
+    "valor": 3.90,
+    "quantidade": 5
 }
 
 
@@ -28,13 +28,13 @@ GET {{url}}/listar_produto/1
 
 ### Atualizar produto
 
-PUT {{url}}/atualizar_produto/1
+PUT {{url}}/atualizar_produto/7
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2 preto",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
-    "valor": 99.90,
+    "nome": "detergente",
+    "descricao": "sabao coco",
+    "valor": 2.90,
     "quantidade": 12
 }
 
@@ -45,7 +45,7 @@ DELETE {{url}}/deletar_produto
 Content-Type: application/json
 
 {
-    "id_produto": 4
+    "id_produto": 1
 }
 
 
@@ -64,3 +64,40 @@ Content-Type: application/json
 ### Listar movimentacoes
 
 GET {{url}}/listar_movimentacoes
+
+//usuarios
+
+### Cadastrar um ADMIN
+POST {{url}}/usuarios
+Content-Type: application/json
+
+{ "nome": "Arthur", "email": "arthur@empresa.com", "senha": "admin123", "perfil": "ADMIN" }
+
+### Cadastrar um OPERADOR
+POST {{url}}/usuarios
+Content-Type: application/json
+
+{ "nome": "Otavio Operador", "email": "otavio@empresa.com", "senha": "oper123", "perfil": "OPERADOR" }
+
+### Login (copie o token da resposta)
+POST {{url}}/login
+Content-Type: application/json
+
+{ "email": "otavio@empresa.com", "senha": "oper123" }
+
+###
+@token = COLE_O_TOKEN_AQUI
+
+### Sem token: 401
+GET {{url}}/listar_produtos
+
+### Com token: 200
+GET {{url}}/listar_produtos
+Authorization: Bearer {{token}}
+
+### OPERADOR tentando deletar: 403
+DELETE {{url}}/deletar_produto
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "id_produto": 1 }

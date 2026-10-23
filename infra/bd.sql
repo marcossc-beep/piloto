@@ -1,8 +1,21 @@
--- Antes de rodar: crie o banco "empresa" no pgAdmin
--- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
+-- OPERADOR: consulta, insere e atualiza
+CREATE ROLE operador_almox LOGIN PASSWORD 'operador123';
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO operador_almox;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO operador_almox;
 
-DROP TABLE IF EXISTS movimentacao;
-DROP TABLE IF EXISTS produto;
+-- ADMIN: tudo do operador e também deleta
+CREATE ROLE admin_almox LOGIN PASSWORD 'admin123';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin_almox;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin_almox;
+
+CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  perfil VARCHAR(10) NOT NULL DEFAULT 'OPERADOR',
+  CONSTRAINT chk_perfil_usuario CHECK (perfil IN ('OPERADOR', 'ADMIN'))
+);
 
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
@@ -23,11 +36,15 @@ CREATE TABLE movimentacao (
 );
 
 INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES
-  ('Teclado ABNT2', 'Teclado USB padrao ABNT2 com fio', 89.90, 10),
-  ('Mouse optico', 'Mouse optico USB 1000 DPI', 39.90, 25),
-  ('Monitor 21 polegadas', 'Monitor LED 21 polegadas Full HD', 749.00, 5);
+  ('sabão', 'sabao coco', 3.90, 10),
+  ('esponja', 'esponja scotchbrite', 7.90, 25),
+  ('agua sanitaria', 'agua sanitaria quiboa', 12.00, 5);
 
 INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES
   (1, 'ENTRADA', 10),
   (2, 'ENTRADA', 25),
   (3, 'ENTRADA', 5);
+
+  --
+
+  infra/bd.sql.
