@@ -1,209 +1,165 @@
+
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import sql from '../config/db.js'
+import { autenticar, permitirPerfis } from '../middlewares/auth.js'
 
-export default async function estoqueRoutes(servidor) {
+export default async function usuariosRoutes(servidor) {
+  // Cadastro do primeiro administrador
+  servidor.post('/usuarios', async (request, reply) => {
+    const { nome, email, senha, perfil } = request.body || {}
 
-  // ---------------------------------------------------------------------------
-  // PRODUTOS
-  // ---------------------------------------------------------------------------
-
-  servidor.post('/add_produto', async (request, reply) => {
-    const { nome, descricao, valor, quantidade } = request.body || {}
-
-    if (!nome || nome.trim() === '') {
-      return reply.status(422).send({ erro: 'O campo nome e obrigatorio' })
+    if (
+      typeof nome !== 'string' || !nome.trim() ||
+      typeof email !== 'string' || !email.trim() ||
+      typeof senha !== 'string' || senha.length < 6
+    ) {
+      return reply.code(422).send({
+        erro: 'Informe nome, email e senha com pelo menos 6 caracteres'
+      })
     }
-    if (valor === undefined || valor === null || isNaN(Number(valor)) || Number(valor) < 0) {
-      return reply.status(422).send({ erro: 'O campo valor deve ser um numero maior ou igual a zero' })
+
+    const conexao = await sql.connect()
+
+    try {
+      await conexao.query('BEGIN')
+
+      const total = await conexao.query(
+        'SELECT COUNT(*) FROM usuarios'
+      )
+
+      const primeiro = Number(total.rows[0].count) === 0
+      let perfilFinal = 'ADMINISTRADOR'
+
+      if (!primeiro) {
+        const authorization = request.headers.authorization
+
+        if (!authorization?.startsWith('Bearer ')) {
+          await conexao.query('ROLLBACK')
+          return reply.code(401).send({ erro: 'Login de administrador necessario' })
+        }
+
+        let usuario
+
+        try {
+          usuario = jwt.verify(
+            authorization.slice(7),
+            process.env.JWT_SECRET
+          )
+        } catch {
+          await conexao.query('ROLLBACK')
+          return reply.code(401).send({ erro: 'Token invalido' })
+        }
+
+        if (usuario.perfil !== 'ADMINISTRADOR') {
+          await conexao.query('ROLLBACK')
+          return reply.code(403).send({ erro: 'Apenas administrador pode cadastrar usuarios' })
+        }
+
+        perfilFinal = perfil
+      }
+
+      if (!['ADMINISTRADOR', 'OPERADOR'].includes(perfilFinal)) {
+        await conexao.query('ROLLBACK')
+        return reply.code(422).send({ erro: 'Perfil invalido' })
+      }
+
+      const senhaHash = await bcrypt.hash(senha, 10)
+
+      const resultado = await conexao.query(
+        `INSERT INTO usuarios (nome, email, senha, perfil)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id_usuario, nome, email, perfil`,
+        [nome.trim(), email.trim().toLowerCase(), senhaHash, perfilFinal]
+      )
+
+      await conexao.query('COMMIT')
+
+      return reply.code(201).send({
+        mensagem: 'Usuario cadastrado com sucesso',
+        usuario: resultado.rows[0]
+      })
+    } catch (erro) {
+      await conexao.query('ROLLBACK')
+
+      if (erro.code === '23505') {
+        return reply.code(409).send({ erro: 'Email ja cadastrado' })
+      }
+
+      console.error(erro)
+      return reply.code(500).send({ erro: 'Erro ao cadastrar usuario' })
+    } finally {
+      conexao.release()
     }
-    if (quantidade === undefined || quantidade === null || isNaN(Number(quantidade)) || Number(quantidade) < 0) {
-      return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero maior ou igual a zero' })
+  })
+
+  // Login
+  servidor.post('/login', async (request, reply) => {
+    const { email, senha } = request.body || {}
+
+    if (!email || !senha) {
+      return reply.code(422).send({ erro: 'Informe email e senha' })
     }
 
     try {
       const resultado = await sql.query(
-        'INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES ($1, $2, $3, $4) RETURNING id_produto',
-        [nome, descricao || null, Number(valor), Number(quantidade)]
+        `SELECT id_usuario, nome, email, senha, perfil
+         FROM usuarios
+         WHERE email = $1 AND ativo = TRUE`,
+        [String(email).trim().toLowerCase()]
       )
 
-      return reply.status(201).send({
-        mensagem: 'Produto cadastrado com sucesso',
-        id_produto: resultado.rows[0].id_produto
+      if (!resultado.rows.length) {
+        return reply.code(401).send({ erro: 'Email ou senha incorretos' })
+      }
+
+      const usuario = resultado.rows[0]
+      const valida = await bcrypt.compare(String(senha), usuario.senha)
+
+      if (!valida) {
+        return reply.code(401).send({ erro: 'Email ou senha incorretos' })
+      }
+
+      const token = jwt.sign(
+        {
+          id_usuario: usuario.id_usuario,
+          nome: usuario.nome,
+          perfil: usuario.perfil
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      )
+
+      return reply.send({
+        mensagem: 'Login realizado com sucesso',
+        token,
+        usuario: {
+          id_usuario: usuario.id_usuario,
+          nome: usuario.nome,
+          email: usuario.email,
+          perfil: usuario.perfil
+        }
       })
     } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao cadastrar produto' })
+      console.error(erro)
+      return reply.code(500).send({ erro: 'Erro ao realizar login' })
     }
   })
 
-  servidor.get('/listar_produtos', async (request, reply) => {
+  // Consultar usuários: somente administrador
+  servidor.get('/usuarios', {
+    preHandler: [autenticar, permitirPerfis('ADMINISTRADOR')]
+  }, async (request, reply) => {
     try {
-      const produtos = await sql.query(
-        'SELECT id_produto, nome, descricao, valor_unitario, quantidade, data_cadastro FROM produto'
-      )
-
-      return reply.status(200).send(produtos.rows)
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao listar produtos' })
-    }
-  })
-
-  servidor.get('/listar_produto/:id', async (request, reply) => {
-    const { id } = request.params
-
-    if (isNaN(Number(id))) {
-      return reply.status(422).send({ erro: 'O id informado e invalido' })
-    }
-
-    try {
-      const produtos = await sql.query(
-        'SELECT id_produto, nome, descricao, valor_unitario, quantidade, data_cadastro FROM produto WHERE id_produto = $1',
-        [Number(id)]
-      )
-
-      if (produtos.rows.length === 0) {
-        return reply.status(404).send({ erro: 'Produto nao encontrado' })
-      }
-
-      return reply.status(200).send(produtos.rows[0])
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao consultar produto' })
-    }
-  })
-
-  servidor.put('/atualizar_produto/:id', async (request, reply) => {
-    const { id } = request.params
-    const { nome, descricao, valor, quantidade } = request.body || {}
-
-    if (isNaN(Number(id))) {
-      return reply.status(422).send({ erro: 'O id informado e invalido' })
-    }
-    if (!nome || nome.trim() === '') {
-      return reply.status(422).send({ erro: 'O campo nome e obrigatorio' })
-    }
-    if (valor === undefined || valor === null || isNaN(Number(valor)) || Number(valor) < 0) {
-      return reply.status(422).send({ erro: 'O campo valor deve ser um numero maior ou igual a zero' })
-    }
-    if (quantidade === undefined || quantidade === null || isNaN(Number(quantidade)) || Number(quantidade) < 0) {
-      return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero maior ou igual a zero' })
-    }
-
-    try {
-      const produtos = await sql.query(
-        'SELECT id_produto FROM produto WHERE id_produto = $1',
-        [Number(id)]
-      )
-
-      if (produtos.rows.length === 0) {
-        return reply.status(404).send({ erro: 'Produto nao encontrado' })
-      }
-
-      await sql.query(
-        'UPDATE produto SET nome = $1, descricao = $2, valor_unitario = $3, quantidade = $4 WHERE id_produto = $5',
-        [nome, descricao || null, Number(valor), Number(quantidade), Number(id)]
-      )
-
-      return reply.status(200).send({ mensagem: 'Produto atualizado com sucesso' })
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao atualizar produto' })
-    }
-  })
-
-  servidor.delete('/deletar_produto', async (request, reply) => {
-    const { id_produto } = request.body || {}
-
-    if (id_produto === undefined || id_produto === null || isNaN(Number(id_produto))) {
-      return reply.status(422).send({ erro: 'O campo id_produto e obrigatorio' })
-    }
-
-    try {
-      const movimentacoes = await sql.query(
-        'SELECT id_movimentacao FROM movimentacao WHERE id_produto = $1',
-        [Number(id_produto)]
-      )
-
-      if (movimentacoes.rows.length > 0) {
-        return reply.status(409).send({ erro: 'O produto possui movimentacoes e nao pode ser removido' })
-      }
-
       const resultado = await sql.query(
-        'DELETE FROM produto WHERE id_produto = $1',
-        [Number(id_produto)]
+        `SELECT id_usuario, nome, email, perfil, ativo
+         FROM usuarios ORDER BY id_usuario`
       )
 
-      if (resultado.rowCount === 0) {
-        return reply.status(404).send({ erro: 'Produto nao encontrado' })
-      }
-
-      return reply.status(200).send({ mensagem: 'Produto removido com sucesso' })
+      return reply.send(resultado.rows)
     } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao remover produto' })
-    }
-  })
-
-  // ---------------------------------------------------------------------------
-  // MOVIMENTACOES
-  // ---------------------------------------------------------------------------
-
-  servidor.post('/movimentar_produto', async (request, reply) => {
-    const { id_produto, tipo, quantidade } = request.body || {}
-
-    if (id_produto === undefined || id_produto === null || isNaN(Number(id_produto))) {
-      return reply.status(422).send({ erro: 'O campo id_produto e obrigatorio' })
-    }
-    if (tipo !== 'ENTRADA') {
-      return reply.status(422).send({ erro: 'Somente movimentacoes do tipo ENTRADA estao implementadas' })
-    }
-    if (quantidade === undefined || quantidade === null || isNaN(Number(quantidade)) || Number(quantidade) <= 0) {
-      return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero maior que zero' })
-    }
-
-    try {
-      const produtos = await sql.query(
-        'SELECT id_produto, quantidade FROM produto WHERE id_produto = $1',
-        [Number(id_produto)]
-      )
-
-      if (produtos.rows.length === 0) {
-        return reply.status(404).send({ erro: 'Produto nao encontrado' })
-      }
-
-      await sql.query(
-        'INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES ($1, $2, $3)',
-        [Number(id_produto), tipo, Number(quantidade)]
-      )
-
-      await sql.query(
-        'UPDATE produto SET quantidade = quantidade + $1 WHERE id_produto = $2',
-        [Number(quantidade), Number(id_produto)]
-      )
-
-      return reply.status(201).send({
-        mensagem: 'Entrada registrada com sucesso',
-        quantidade_atual: produtos.rows[0].quantidade + Number(quantidade)
-      })
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao movimentar produto' })
-    }
-  })
-
-  servidor.get('/listar_movimentacoes', async (request, reply) => {
-    try {
-      const movimentacoes = await sql.query(
-        'SELECT m.id_movimentacao, m.id_produto, p.nome, m.tipo, m.quantidade ' +
-        'FROM movimentacao m ' +
-        'INNER JOIN produto p ON p.id_produto = m.id_produto ' +
-        'ORDER BY m.id_movimentacao DESC'
-      )
-
-      return reply.status(200).send(movimentacoes.rows)
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao listar movimentacoes' })
+      console.error(erro)
+      return reply.code(500).send({ erro: 'Erro ao listar usuarios' })
     }
   })
 }
