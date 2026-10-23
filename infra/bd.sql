@@ -1,8 +1,14 @@
--- Antes de rodar: crie o banco "empresa" no pgAdmin
--- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
-
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
+create type perfil as enum('adm','operador');
+
+create table usuario(
+id serial primary key,
+nome varchar(255) not null,
+email varchar(255) not null,
+senha varchar(255) not null,
+perfil_user perfil not null
+);
 
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
