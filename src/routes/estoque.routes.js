@@ -4,34 +4,6 @@ export default async function estoqueRoutes(servidor) {
 
   //USUARIOS
 
-  servidor.post('/cadastro/:id', async (request,reply) => {
-    const { nome, email, senha, perfil } = request.body || {}
-
-    if (!nome) {
-      return reply.status(422).send({erro: 'O campo nome é obrigatório'})
-    }
-    if (!email) {
-      return reply.status(422).send({erro: 'O campo email é obrigatório'})
-    }
-    if (!senha) {
-      return reply.status(422).send({erro: 'O campo senha é obrigatório'})
-    }
-
-    try {
-      const resultado = await sql.query(
-        'INSERT INTO usuario (nome, email, senha, perfil) VALUES ($1, $2, $3, $4) RETURNING id_usuario',
-        [nome, email, senha, perfil]
-      )
-    return reply.status(201).send({
-        mensagem: 'Usuário cadastrado com sucesso',
-        id_usuario: resultado.rows[0].id_usuario
-      })
-    } catch (erro) {
-      console.log(erro)
-      return reply.status(500).send({ erro: 'Erro ao cadastrar o usuário' })
-    }
-  })
-
   servidor.post('/cadastro', async (request,reply) => {
     const { nome, email, senha, perfil } = request.body
 
