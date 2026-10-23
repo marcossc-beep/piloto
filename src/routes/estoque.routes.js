@@ -160,7 +160,9 @@ export default async function estoqueRoutes(servidor) {
     if (quantidade === undefined || quantidade === null || isNaN(Number(quantidade)) || Number(quantidade) <= 0) {
       return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero maior que zero' })
     }
-
+    if (quantidade > estoque_disponivel) {
+      return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero menor ou igaul ao disponivel'})
+    }
     try {
       const produtos = await sql.query(
         'SELECT id_produto, quantidade FROM produto WHERE id_produto = $1',

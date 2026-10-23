@@ -15,7 +15,7 @@ CREATE TABLE produto (
 
 CREATE TABLE movimentacao (
   id_movimentacao SERIAL PRIMARY KEY,
-  id_produto INT NOT NULL,
+  id_produto INT NOT NULL, 
   tipo VARCHAR(10) NOT NULL,
   quantidade INT NOT NULL,
   CONSTRAINT chk_tipo_movimentacao CHECK (tipo IN ('ENTRADA','SAIDA')),

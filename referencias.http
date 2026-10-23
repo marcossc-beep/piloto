@@ -1,9 +1,4 @@
-### Requisicoes de exemplo (extensao REST Client do VS Code). Rode a API com: npm run dev
-
 @url = http://localhost:3000
-
-
-### Cadastrar produto
 
 POST {{url}}/add_produto
 Content-Type: application/json
@@ -14,14 +9,12 @@ Content-Type: application/json
     "valor": 89.90,
     "quantidade": 10
 }
-
-
-### Listar produtos
+###
 
 GET {{url}}/listar_produtos
 
 
-### Consultar produto pelo id
+### 
 
 GET {{url}}/listar_produto/1
 
