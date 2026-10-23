@@ -1,0 +1,13 @@
+
+RF1: login: O sistema deve permitir o login de dois tipos de usuários (operador e administrador).
+RF2: rastreabilidade: O sistema deve registrar todas as movimentações de forma devida contendo data e horário e usuário responsável.
+RF3: retirada: O sistema deve conter uma lógica que impede a retirada de itens a mais que o que está no estoque.
+RF4: Gerenciar estoque: O sistema deve permitir que o operador deve consultar, inserir e atualizar dados enquanto o administrador deve consultar, inserir, atualizar e deletar dados.
+
+Infraestrutura:
+SGBD utilizado: PgAdmin 4
+Versão: 8.21.0
+
+Linguagem de programação: Fastify
+Versão: 5.8.5
+

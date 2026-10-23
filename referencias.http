@@ -2,6 +2,18 @@
 
 @url = http://localhost:3000
 
+### criar usuario
+
+POST {{url}}/usuario/:id
+Content-Type: application/json
+
+{
+    "nome": "Gabriel",
+    "email": "Gabrielamordaminhavida@gmail.com",
+    "senha": "aminhavidaeinda123",
+    "perfil": "OPERADOR"
+}
+
 
 ### Cadastrar produto
 
@@ -9,8 +21,8 @@ POST {{url}}/add_produto
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
+    "nome": "Esfregão",
+    "descricao": "Esfregão com cabo de aço e pano de microfibra",
     "valor": 89.90,
     "quantidade": 10
 }

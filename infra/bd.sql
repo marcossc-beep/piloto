@@ -1,8 +1,15 @@
--- Antes de rodar: crie o banco "empresa" no pgAdmin
--- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
 
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
+
+CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  perfil VARCHAR(10) NOT NULL DEFAULT 'OPERADOR',
+  CONSTRAINT chk_perfil_usuario CHECK (perfil IN ('OPERADOR', 'ADMIN'))
+);
 
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
@@ -23,11 +30,16 @@ CREATE TABLE movimentacao (
 );
 
 INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES
-  ('Teclado ABNT2', 'Teclado USB padrao ABNT2 com fio', 89.90, 10),
-  ('Mouse optico', 'Mouse optico USB 1000 DPI', 39.90, 25),
-  ('Monitor 21 polegadas', 'Monitor LED 21 polegadas Full HD', 749.00, 5);
+  ('Esfregão', 'Esfregão com cabo de aço e pano de microfibra', 89.90, 10),
+  ('Pano de microfibra', 'Pano para limpar superfícies seníveis', 39.90, 25),
+  ('Detergente', 'usado pra fazer espuma', 749.00, 5);
 
 INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES
   (1, 'ENTRADA', 10),
   (2, 'ENTRADA', 25),
   (3, 'ENTRADA', 5);
+
+  INSERT INTO usuario (nome, email, senha, perfil) VALUES
+  ('Iago','iagogames@gmail.com','docepraanimaodia123', 'ADMIN'),
+  ('Guilherme','guiprogamador@gmail.com','euusojava', 'OPERADOR'),
+  ('Giulia','giulialinda@gmail.com','gostodebatata', 'OPERADOR');
