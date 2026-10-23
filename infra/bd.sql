@@ -4,11 +4,13 @@
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
 
-create table usuarios(
-  id serial primary key,
-  nome varchar(100) not null,
-  senha varchar(100) not null,
-  email varchar(255) not null unique
+CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  perfil VARCHAR(10) NOT NULL DEFAULT 'OPERADOR',
+  CONSTRAINT chk_perfil_usuario CHECK (perfil IN ('OPERADOR', 'ADMIN'))
 );
 
 CREATE TABLE produto (
