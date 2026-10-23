@@ -2,6 +2,26 @@ import sql from '../config/db.js'
 
 export default async function estoqueRoutes(servidor) {
 
+  // User: admin e operador
+  servidor.get('/usuarios', async (reply) => {
+    const resposta = await sql.query('SELECT * FROM usuario')
+    return reply.status(200).send(resposta.rows)
+  })
+
+  servidor.post('/usuario/:id', async (request,reply) => {
+    const id = request.params.id
+    const body = request.body
+
+    const resposta = await sql.query(
+      'INSERT INTO produto (nome, email, senha, perfil) VALUES ($1, $2, $3, $4) RETURNING id_usuario', [body.nome, body.email, body.senha, body.perfil]
+    )    
+      return reply.status(201).send({
+        mensagem: 'Produto cadastrado com sucesso',
+        id_produto: resposta.rows[0].id_usuario
+      })
+    
+  })
+
   // ---------------------------------------------------------------------------
   // PRODUTOS
   // ---------------------------------------------------------------------------

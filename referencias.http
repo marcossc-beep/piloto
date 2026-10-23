@@ -2,6 +2,10 @@
 
 @url = http://localhost:3000
 
+### Listar usuários
+
+GET {{url}}/usuarios
+
 
 ### Cadastrar produto
 
@@ -9,9 +13,9 @@ POST {{url}}/add_produto
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
-    "valor": 89.90,
+    "nome": "Detergente JONAS",
+    "descricao": "Detergente da marca JONAS",
+    "valor": 19.00,
     "quantidade": 10
 }
 
