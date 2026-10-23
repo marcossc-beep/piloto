@@ -22,6 +22,17 @@ CREATE TABLE movimentacao (
   CONSTRAINT fk_movimentacao_produto FOREIGN KEY (id_produto) REFERENCES produto (id_produto)
 );
 
+create type perfil as enum ('adm', 'operador');
+
+CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  perfil VARCHAR(10) NOT NULL DEFAULT 'OPERADOR',
+  CONSTRAINT chk_perfil_usuario CHECK (perfil IN ('OPERADOR', 'ADMIN'))
+);
+
 INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES
   ('Teclado ABNT2', 'Teclado USB padrao ABNT2 com fio', 89.90, 10),
   ('Mouse optico', 'Mouse optico USB 1000 DPI', 39.90, 25),
