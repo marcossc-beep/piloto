@@ -1,11 +1,13 @@
 import Fastify from 'fastify'
 import 'dotenv/config'
 
-import estoqueRoutes from './routes/estoque.routes.js'
+import produtoRoutes from './routes/produto.routes.js'
+import movimentacaoRoutes from './routes/movimentacao.routes.js'
 
 const servidor = Fastify()
 
-servidor.register(estoqueRoutes)
+servidor.register(produtoRoutes)
+servidor.register(movimentacaoRoutes)
 
 const porta = Number(process.env.PORT) || 3000
 
