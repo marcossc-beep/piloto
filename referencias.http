@@ -64,3 +64,48 @@ Content-Type: application/json
 ### Listar movimentacoes
 
 GET {{url}}/listar_movimentacoes
+
+### Cadastrar usuario
+
+POST {{url}}/add_usuario
+Content-Type: application/json
+
+{
+    "nome": "Teclado ABNT2",
+    "telefone": "Teclado USB padrao ABNT2 com fio",
+    "CPF": "16677769700",
+    "email": "gustavo@gmail.com"
+}
+
+
+### Listar usuario
+
+GET {{url}}/listar_usuario
+
+
+### Consultar usuario pelo id
+
+GET {{url}}/listar_usuario/1
+
+
+### Atualizar usuario
+
+PUT {{url}}/atualizar_usuario/1
+Content-Type: application/json
+
+{
+    "nome": "Teclado ABNT2",
+    "telefone": "Teclado USB padrao ABNT2 com fio",
+    "CPF": "16677769700",
+    "email": "gustavo@gmail.com"
+}
+
+
+### Remover usuario 
+
+DELETE {{url}}/deletar_usuario
+Content-Type: application/json
+
+{
+    "id_usario": 4
+}

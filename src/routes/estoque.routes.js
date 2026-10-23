@@ -2,10 +2,6 @@ import sql from '../config/db.js'
 
 export default async function estoqueRoutes(servidor) {
 
-  // ---------------------------------------------------------------------------
-  // PRODUTOS
-  // ---------------------------------------------------------------------------
-
   servidor.post('/add_produto', async (request, reply) => {
     const { nome, descricao, valor, quantidade } = request.body || {}
 
@@ -206,4 +202,128 @@ export default async function estoqueRoutes(servidor) {
       return reply.status(500).send({ erro: 'Erro ao listar movimentacoes' })
     }
   })
+
+   // ---------------------------------------------------------------------------
+   // USUARIO
+   // ---------------------------------------------------------------------------
+
+    servidor.post('/add_usuario', async (request, reply) => {
+    const { nome, telefone, CPF, email } = request.body || {}
+
+    if (!nome || nome.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo Nome é obrigatorio' })
+    }
+    if (!telefone || telefone.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo Telefone é obrigatorio' })
+    }
+    if (!CPF || CPF.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo cpf é obrigatorio' })
+    }
+    if (!email || email.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo Email é obrigatorio' })
+    }
+
+    try {
+      const resultado = await sql.query(
+        'INSERT INTO produto (nome, telefone, CPF, email) VALUES ($1, $2, $3, $4) RETURNING id_usuario',
+        [nome, descricao || null, Number(valor), Number(quantidade)]
+      )
+
+      return reply.status(201).send({
+        mensagem: 'usuario cadastrado com sucesso',
+        id_produto: resultado.rows[0].id_produto
+      })
+    } catch (erro) {
+      console.log(erro)
+      return reply.status(500).send({ erro: 'Erro ao cadastrar usuario' })
+    }
+  })
+
+  servidor.get('/listar_usuario', async (request, reply) => {
+    try {
+      const produtos = await sql.query(
+        'SELECT id_usuario, nome, telefone, CPF, quantidade FROM produto'
+      )
+
+      return reply.status(200).send(usuario.rows)
+    } catch (erro) {
+      console.log(erro)
+      return reply.status(500).send({ erro: 'Erro ao listar produtos' })
+    }
+  })
+
+  servidor.get('/listar_usuario/:id', async (request, reply) => {
+    const { id } = request.params
+
+    if (isNaN(Number(id))) {
+      return reply.status(422).send({ erro: 'O id informado e invalido' })
+    }
+
+    try {
+      const usuario = await sql.query(
+        'SELECT id_usuario, nome, telefone, CPF, email FROM usuario WHERE id_usuario = $1',
+        [Number(id)]
+      )
+
+      if (usuario.rows.length === 0) {
+        return reply.status(404).send({ erro: 'usuario nao encontrado' })
+      }
+
+      return reply.status(200).send(usuario.rows[0])
+    } catch (erro) {
+      console.log(erro)
+      return reply.status(500).send({ erro: 'Erro ao consultar usuario' })
+    }
+  })
+
+  servidor.put('/atualizar_usuario/:id', async (request, reply) => {
+    const { id } = request.params
+    const { nome, telefone, CPF, email } = request.body || {}
+
+    if (isNaN(Number(id))) {
+      return reply.status(422).send({ erro: 'O id informado e invalido' })
+    }
+    if (!nome || nome.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo nome e obrigatorio' })
+    }
+    if (!telefone || telefone.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo telefone e obrigatorio' })
+    }
+    if (!CPF || CPF.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo CPF e obrigatorio' })
+    }
+    if (!email || email.trim() === '') {
+      return reply.status(422).send({ erro: 'O campo email e obrigatorio' })
+    }
+
+    try {
+      const usuario = await sql.query(
+        'SELECT id_usuario FROM usuario WHERE id_usuario = $1',
+        [Number(id)]
+      )
+
+      if (produtos.rows.length === 0) {
+        return reply.status(404).send({ erro: 'usuario nao encontrado' })
+      }
+
+      await sql.query(
+        'UPDATE produto SET nome = $1, telefone = $2, CPF = $3, email = $4 WHERE id_usuario = $5',
+        [nome, telefone, CPF, email || null, Number(id)]
+      )
+
+      return reply.status(200).send({ mensagem: 'usuario atualizado com sucesso' })
+    } catch (erro) {
+      console.log(erro)
+      return reply.status(500).send({ erro: 'Erro ao atualizar usuario' })
+    }
+  })
+
+  servidor.delete('/deletar_usuario', async (request, reply) => {
+    const { id_usuario } = request.body || {}
+
+    if (id_usuario === undefined || id_usuario === null || isNaN(Number(id_usuario))) {
+      return reply.status(422).send({ erro: 'O campo id_usuario e obrigatorio' })
+    }
+
+})
 }

@@ -1,9 +1,3 @@
--- Antes de rodar: crie o banco "empresa" no pgAdmin
--- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
-
-DROP TABLE IF EXISTS movimentacao;
-DROP TABLE IF EXISTS produto;
-
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
@@ -11,6 +5,13 @@ CREATE TABLE produto (
   valor_unitario NUMERIC(10,2) NOT NULL,
   quantidade INT NOT NULL DEFAULT 0,
   data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  telefone varchar(255) NOT NULL UNIQUE,
+  CPF varchar(255) NOT NULL UNIQUE,
+  email varchar(255)
 );
 
 CREATE TABLE movimentacao (
