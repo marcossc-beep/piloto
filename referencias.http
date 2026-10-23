@@ -2,6 +2,16 @@
 
 @url = http://localhost:3000
 
+### Login de usuário
+POST {{url}}/cadastro
+Content-Type: application/json
+
+{
+    "nome": "Lukinhas",
+    "email": "lucas@gmail.com",
+    "senha": "aaaaaa",
+    "perfil": "ADMIN"
+}
 
 ### Cadastrar produto
 
@@ -9,10 +19,10 @@ POST {{url}}/add_produto
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
-    "valor": 89.90,
-    "quantidade": 10
+    "nome": "Pano",
+    "descricao": "Limpa as coisa",
+    "valor": 9.90,
+    "quantidade": 12
 }
 
 
@@ -32,8 +42,8 @@ PUT {{url}}/atualizar_produto/1
 Content-Type: application/json
 
 {
-    "nome": "Teclado ABNT2 preto",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
+    "nome": "Esfregão",
+    "descricao": "Esfregão extendível",
     "valor": 99.90,
     "quantidade": 12
 }
@@ -57,7 +67,8 @@ Content-Type: application/json
 {
     "id_produto": 1,
     "tipo": "ENTRADA",
-    "quantidade": 5
+    "quantidade": 5,
+    "responsavel": 1
 }
 
 
