@@ -20,7 +20,7 @@ CREATE TABLE movimentacao (
   quantidade INT NOT NULL,
   CONSTRAINT chk_tipo_movimentacao CHECK (tipo IN ('ENTRADA','SAIDA')),
   CONSTRAINT fk_movimentacao_produto FOREIGN KEY (id_produto) REFERENCES produto (id_produto)
-);
+);  
 
 INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES
   ('Teclado ABNT2', 'Teclado USB padrao ABNT2 com fio', 89.90, 10),
@@ -31,3 +31,4 @@ INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES
   (1, 'ENTRADA', 10),
   (2, 'ENTRADA', 25),
   (3, 'ENTRADA', 5);
+  
