@@ -5,6 +5,14 @@ import estoqueRoutes from './routes/estoque.routes.js'
 
 const servidor = Fastify()
 
+import jwt from '@fastify/jwt'
+
+servidor.register(jwt, {
+  secret: process.env.JWT_SECRET || 'troque_esta_chave',
+  sign: { expiresIn: '1h' }
+})
+
+
 servidor.register(estoqueRoutes)
 
 const porta = Number(process.env.PORT) || 3000
