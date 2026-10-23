@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
     "nome": "Teclado ABNT2 preto",
-    "descricao": "Teclado USB padrao ABNT2 com fio",
+    "descricao": "Teclado USB padtao ABNT2 com fio",
     "valor": 99.90,
     "quantidade": 12
 }
