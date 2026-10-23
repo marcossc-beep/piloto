@@ -1,5 +1,9 @@
 import { Pool } from 'pg'
 import 'dotenv/config'
+import bcrypt from 'bcrypt'
+
+const hash = await bcrypt.hash('senha123', 10)              
+const confere = await bcrypt.compare('senha123', hash)  
 
 const sql = new Pool({
   host: process.env.DB_HOST || 'localhost',
