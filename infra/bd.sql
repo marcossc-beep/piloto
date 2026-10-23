@@ -1,9 +1,3 @@
--- Antes de rodar: crie o banco "empresa" no pgAdmin
--- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
-
-DROP TABLE IF EXISTS movimentacao;
-DROP TABLE IF EXISTS produto;
-
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
@@ -31,3 +25,25 @@ INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES
   (1, 'ENTRADA', 10),
   (2, 'ENTRADA', 25),
   (3, 'ENTRADA', 5);
+
+  CREATE TABLE usuario (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  perfil VARCHAR(10) NOT NULL DEFAULT 'OPERADOR',
+  CONSTRAINT chk_perfil_usuario CHECK (perfil IN ('OPERADOR', 'ADMIN'))
+);
+
+SELECT * FROM usuario;
+
+-- OPERADOR: consulta, insere e atualiza
+CREATE ROLE operador_almox LOGIN PASSWORD 'operador123';
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO operador_almox;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO operador_almox;
+
+-- ADMIN: tudo do operador e também deleta
+CREATE ROLE admin_almox LOGIN PASSWORD 'admin123';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin_almox;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin_almox;
+
