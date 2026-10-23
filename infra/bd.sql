@@ -4,6 +4,13 @@
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
 
+create table usuarios(
+  id serial primary key,
+  nome varchar(100) not null,
+  senha varchar(100) not bull,
+  
+);
+
 CREATE TABLE produto (
   id_produto SERIAL PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
