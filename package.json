@@ -23,5 +23,16 @@
     "dotenv": "^16.4.7",
     "fastify": "^5.8.5",
     "pg": "^8.21.0"
-  }
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcossc-beep/piloto.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marcossc-beep/piloto/issues"
+  },
+  "homepage": "https://github.com/marcossc-beep/piloto#readme"
 }
