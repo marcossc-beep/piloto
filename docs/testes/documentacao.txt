@@ -1,0 +1,7 @@
+RF01 - O sistema deve possuir dois tipos de usuários (admin, operador)
+RF02 - O sistema deve registrar todas as movimentações realizadas incluindo data/hora e usuário responsável pela movimentação.
+RF03 - O sistema deve manter a lógica de atualização automática do estoque, para garantir a consistência do saldo.
+RF04 - 
+
+RN01 - O operador deve apenas consultar, inserir e atualizar dados. O administrador deve consultar, inserir, atualizar e deletar os dados.
+
