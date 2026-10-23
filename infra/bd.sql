@@ -1,16 +1,17 @@
 -- Antes de rodar: crie o banco "empresa" no pgAdmin
 -- (botao direito em Databases > Create > Database...) e abra o Query Tool nele.
 
+CREATE TYPE ENUEM perfil_usuario ('Operador' , 'Administrador')
+
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
 
-CREATE TABLE produto (
+CREATE TABLE usuario (
   id_produto SERIAL PRIMARY KEY,
-  nome VARCHAR(100) NOT NULL,
-  descricao VARCHAR(255) NULL,
-  valor_unitario NUMERIC(10,2) NOT NULL,
-  quantidade INT NOT NULL DEFAULT 0,
-  data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  nome VARCHAR(225) NOT NULL,
+  perfil perfil_usuario NOT NULL DEFAULT 'Operador'
+  senha NUMERIC(167) NOT NULL,
+  cpf VARCHAR (11) UNIQUE NOT NULL
 );
 
 CREATE TABLE movimentacao (
@@ -18,14 +19,14 @@ CREATE TABLE movimentacao (
   id_produto INT NOT NULL,
   tipo VARCHAR(10) NOT NULL,
   quantidade INT NOT NULL,
-  CONSTRAINT chk_tipo_movimentacao CHECK (tipo IN ('ENTRADA','SAIDA')),
-  CONSTRAINT fk_movimentacao_produto FOREIGN KEY (id_produto) REFERENCES produto (id_produto)
+  data_movimentacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  fk_movimentacao_produto FOREIGN KEY (id_usuario) REFERENCES produto (id_usuario)
 );
 
-INSERT INTO produto (nome, descricao, valor_unitario, quantidade) VALUES
-  ('Teclado ABNT2', 'Teclado USB padrao ABNT2 com fio', 89.90, 10),
-  ('Mouse optico', 'Mouse optico USB 1000 DPI', 39.90, 25),
-  ('Monitor 21 polegadas', 'Monitor LED 21 polegadas Full HD', 749.00, 5);
+INSERT INTO usuario (nome, senha, cpf) VALUES
+  ('Heleninha', "1234", "12295556929"),
+  ('Karatekinha', "4321", "12295556929"),
+  ('Vavazinha', "1423", "12295556929");
 
 INSERT INTO movimentacao (id_produto, tipo, quantidade) VALUES
   (1, 'ENTRADA', 10),
