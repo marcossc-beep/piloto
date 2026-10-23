@@ -149,7 +149,7 @@ export default async function estoqueRoutes(servidor) {
   // ---------------------------------------------------------------------------
 
   servidor.post('/movimentar_produto', async (request, reply) => {
-    const { id_produto, tipo, quantidade } = request.body || {}
+    const { id_produto, tipo, quantidade, estoque_disponivel } = request.body || {}
 
     if (id_produto === undefined || id_produto === null || isNaN(Number(id_produto))) {
       return reply.status(422).send({ erro: 'O campo id_produto e obrigatorio' })
@@ -159,6 +159,9 @@ export default async function estoqueRoutes(servidor) {
     }
     if (quantidade === undefined || quantidade === null || isNaN(Number(quantidade)) || Number(quantidade) <= 0) {
       return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero maior que zero' })
+    }
+    if (quantidade > estoque_disponivel) {
+      return reply.status(422).send({ erro: 'O campo quantidade deve ser um numero menor ou igual ao disponível no estoque' })
     }
 
     try {
