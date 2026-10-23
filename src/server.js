@@ -1,5 +1,11 @@
 import Fastify from 'fastify'
 import 'dotenv/config'
+import jwt from '@fastify/jwt'
+
+servidor.register(jwt, {
+  secret: process.env.JWT_SECRET || 'senha_ultra_super_duper_secreta',
+  sign: { expiresIn: '1h' }
+})
 
 import estoqueRoutes from './routes/estoque.routes.js'
 
